@@ -1,0 +1,21 @@
+version: "3.3"
+services:
+  database:
+    image: postgres # use latest official postgres version
+    ports:
+      - "5432:5432"
+    env_file:
+      - database.env # configure postgres
+    volumes:
+      - database-data:/var/lib/postgresql/data/
+  app:
+    user: root
+    image: component-tests-docker-mvn-verify:0.0.1-SNAPSHOT
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/contacts
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+volumes:
+  database-data:
