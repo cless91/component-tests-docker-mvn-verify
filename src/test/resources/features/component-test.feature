@@ -1,9 +1,15 @@
 Feature: Component-test starter
 
-  Scenario: The application is correctly started
-    Given the application is up
+  Background:
+    Given the application is up and ready
     And the database is empty
-    When the following "CREATE USER" REST request is sent:
+
+  Scenario: Create contact
+    When the following "CREATE CONTACT" REST request is sent:
       | name        | joseph           |
-      | mail        | toto@yopmail.com |
+      | email       | toto@yopmail.com |
+      | phoneNumber | 083665656        |
+    Then the following contact is present in the database:
+      | name        | joseph           |
+      | email       | toto@yopmail.com |
       | phoneNumber | 083665656        |

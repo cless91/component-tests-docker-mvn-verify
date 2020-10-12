@@ -1,13 +1,21 @@
-management.endpoints.web.exposure.include: '*'
+management:
+  endpoints:
+    web.exposure.include: '*'
+    health.sensitive: false
+  health:
+    db.enabled: true
+    defaults.enabled: true
+  endpoint:
+    health.show-details: always
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/contacts
+    url: jdbc:mysql://localhost:3306/contacts?createDatabaseIfNotExist=true&serverTimezone=UTC
     username: dbuser
     password: dbpass
-    driver-class-name: org.postgresql.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: create
     properties:
-      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+      hibernate.dialect: org.hibernate.dialect.MySQL8Dialect

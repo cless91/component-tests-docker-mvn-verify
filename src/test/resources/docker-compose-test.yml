@@ -1,21 +1,28 @@
 version: "3.3"
 services:
   database:
-    image: postgres # use latest official postgres version
-    ports:
-      - "5432:5432"
-    env_file:
-      - database.env # configure postgres
+    image: mysql:8
     volumes:
-      - database-data:/var/lib/postgresql/data/
+      - db_data:/var/lib/mysql
+    restart: always
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: contacts
+      MYSQL_USER: dbuser
+      MYSQL_PASSWORD: dbpass
   app:
     user: root
+    restart: always
     image: component-tests-docker-mvn-verify:0.0.1-SNAPSHOT
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/contacts
+      SPRING_DATASOURCE_URL: jdbc:mysql://database:3306/contacts?createDatabaseIfNotExist=true&serverTimezone=UTC
     ports:
       - "8080:8080"
     depends_on:
       - database
 volumes:
-  database-data:
+  db_data:
