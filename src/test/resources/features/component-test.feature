@@ -9,7 +9,21 @@ Feature: Component-test starter
       | name        | joseph           |
       | email       | toto@yopmail.com |
       | phoneNumber | 083665656        |
-    Then the following contact is present in the database:
+    Then the following contact is present in the database, ignoring fields "id":
       | name        | joseph           |
       | email       | toto@yopmail.com |
       | phoneNumber | 083665656        |
+
+  Scenario: Update contact
+    Given the following user in database
+      | name        | joseph           |
+      | email       | toto@yopmail.com |
+      | phoneNumber | 083665656        |
+    When the following "UPDATE CONTACT" REST request is sent:
+      | name        | joseph      |
+      | email       | anotherMail |
+      | phoneNumber | 083665656   |
+    Then the following contact is present in the database:
+      | name        | joseph      |
+      | email       | anotherMail |
+      | phoneNumber | 083665656   |

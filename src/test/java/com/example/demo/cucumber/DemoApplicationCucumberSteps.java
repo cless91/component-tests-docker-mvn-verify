@@ -1,6 +1,9 @@
-package com.example.demo;
+package com.example.demo.cucumber;
 
 
+import com.example.demo.ContactJpa;
+import com.example.demo.ContactRepository;
+import com.example.demo.ContactRestDto;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -16,6 +19,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -44,12 +49,13 @@ public class DemoApplicationCucumberSteps {
   private static int databasePort;
   @Autowired
   private ContactRepository contactRepository;
-
   @Value("${app.base.url}")
   private String appBaseUrl;
   private int timeoutMillis = 7000;
   private final RestTemplate restTemplate = new RestTemplate();
   private ResponseEntity<Void> actualCreateContactResponseEntity;
+  private ResponseEntity<Void> actualUpdateContactResponseEntity;
+  int idNewContact;
 
   @Given("the application is up and ready")
   public void goToFacebook() {
@@ -74,16 +80,39 @@ public class DemoApplicationCucumberSteps {
   }
 
   @When("the following \"CREATE CONTACT\" REST request is sent:")
-  public void theFollowingRESTRequestIsSent(ContactRestDto contactRestDto) {
+  public void theFollowingCreateContactRESTRequestIsSent(ContactRestDto contactRestDto) {
     actualCreateContactResponseEntity = restTemplate.postForEntity(appBaseUrl + "/contact", contactRestDto, Void.TYPE);
+  }
+
+  @When("the following \"UPDATE CONTACT\" REST request is sent:")
+  public void theFollowingUpdateContactRESTRequestIsSent(ContactRestDto contactRestDto) {
+    actualUpdateContactResponseEntity = restTemplate.exchange(appBaseUrl + "/contact/"+idNewContact,
+        HttpMethod.PUT,
+        new HttpEntity<>(contactRestDto),
+        Void.TYPE);
   }
 
   @Then("the following contact is present in the database:")
   public void theFollowingContactIsPresentInTheDatabase(ContactJpa expectedContactJpa) {
+    expectedContactJpa.setId(idNewContact);
     Iterator<ContactJpa> iterator = contactRepository.findAll().iterator();
     assertThat(iterator).hasNext();
     ContactJpa actualContactJpa = iterator.next();
-    assertThat(actualContactJpa).isEqualToIgnoringGivenFields(expectedContactJpa,"id");
+    assertThat(actualContactJpa).isEqualToComparingFieldByField(expectedContactJpa);
+  }
+
+  @Then("the following contact is present in the database, ignoring fields \"{strings}\":")
+  public void theFollowingContactIsPresentInTheDatabaseIgnoring(Collection<String> fieldsToIgnore, ContactJpa expectedContactJpa) {
+    Iterator<ContactJpa> iterator = contactRepository.findAll().iterator();
+    assertThat(iterator).hasNext();
+    ContactJpa actualContactJpa = iterator.next();
+    assertThat(actualContactJpa).isEqualToIgnoringGivenFields(expectedContactJpa, fieldsToIgnore.toArray(new String[0]));
+  }
+
+  @Given("the following user in database")
+  public void theFollowingUserInDatabase(ContactJpa contactJpa) {
+    ContactJpa newContact = contactRepository.save(contactJpa);
+    idNewContact = newContact.getId();
   }
 
   static class Initializer

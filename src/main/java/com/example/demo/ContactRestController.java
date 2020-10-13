@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import io.vavr.control.Try;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +9,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 public class ContactRestController {
+  /**
+   * Todo un test avec une bdd embarquée type H2 pour vérifier que le header `Location` est bien positionné après un insert
+   */
+
   @Autowired
   ContactRepository contactRepository;
 
@@ -38,5 +43,13 @@ public class ContactRestController {
         })
         .map(ResponseEntity::ok)
         .orElse(ResponseEntity.notFound().build());
+  }
+
+  @RequestMapping(path = "/contact/{id}", method = RequestMethod.PUT)
+  public ResponseEntity<Void> update(@PathVariable("id") int id, @RequestBody ContactRestDto dto) {
+    ContactJpa contactJpa = Mapper.dto2Jpa(dto);
+    contactJpa.setId(id);
+    contactRepository.save(contactJpa);
+    return ResponseEntity.ok().build();
   }
 }
