@@ -27,3 +27,11 @@ Feature: Component-test starter
       | name        | joseph      |
       | email       | anotherMail |
       | phoneNumber | 083665656   |
+
+  Scenario: Delete contact
+    Given the following user in database
+      | name        | joseph           |
+      | email       | toto@yopmail.com |
+      | phoneNumber | 083665656        |
+    When a "DELETE CONTACT" REST request is sent
+    Then there is no contact in the database

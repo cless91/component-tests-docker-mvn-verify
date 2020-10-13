@@ -33,6 +33,7 @@ import java.time.Duration;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.not;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -86,9 +87,17 @@ public class DemoApplicationCucumberSteps {
 
   @When("the following \"UPDATE CONTACT\" REST request is sent:")
   public void theFollowingUpdateContactRESTRequestIsSent(ContactRestDto contactRestDto) {
-    actualUpdateContactResponseEntity = restTemplate.exchange(appBaseUrl + "/contact/"+idNewContact,
+    actualUpdateContactResponseEntity = restTemplate.exchange(appBaseUrl + "/contact/" + idNewContact,
         HttpMethod.PUT,
         new HttpEntity<>(contactRestDto),
+        Void.TYPE);
+  }
+
+  @When("a \"DELETE CONTACT\" REST request is sent")
+  public void aDeleteContactRESTRequestIsSent() {
+    actualUpdateContactResponseEntity = restTemplate.exchange(appBaseUrl + "/contact/" + idNewContact,
+        HttpMethod.DELETE,
+        null,
         Void.TYPE);
   }
 
@@ -113,6 +122,12 @@ public class DemoApplicationCucumberSteps {
   public void theFollowingUserInDatabase(ContactJpa contactJpa) {
     ContactJpa newContact = contactRepository.save(contactJpa);
     idNewContact = newContact.getId();
+  }
+
+  @Then("there is no contact in the database")
+  public void thereIsNoContactInTheDatabase() {
+    Iterator<ContactJpa> allContacts = contactRepository.findAll().iterator();
+    assertThat(allContacts.hasNext()).isFalse();
   }
 
   static class Initializer

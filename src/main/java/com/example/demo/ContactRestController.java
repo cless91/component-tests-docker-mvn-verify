@@ -52,4 +52,10 @@ public class ContactRestController {
     contactRepository.save(contactJpa);
     return ResponseEntity.ok().build();
   }
+
+  @RequestMapping(path = "/contact/{id}", method = RequestMethod.DELETE)
+  public ResponseEntity<Void> delete(@PathVariable("id") int id) {
+    contactRepository.deleteById(id);
+    return ResponseEntity.ok().build();
+  }
 }
