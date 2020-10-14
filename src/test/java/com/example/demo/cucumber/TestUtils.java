@@ -10,7 +10,7 @@ import io.vavr.control.Try;
 
 import java.util.Map;
 
-public class Utils {
+public class TestUtils {
   private static ObjectMapper objectMapper = new ObjectMapper()
       .registerModule(new JavaTimeModule())
       .registerModule(new Jdk8Module())

@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
 
-@SpringBootTest(classes = DemoApplication.class)
+import java.util.UUID;
+
+//@SpringBootTest(classes = DemoApplication.class)
 @Disabled
 public class ProducerTest {
 

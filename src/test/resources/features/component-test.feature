@@ -13,6 +13,11 @@ Feature: Component-test starter
       | name        | joseph           |
       | email       | toto@yopmail.com |
       | phoneNumber | 083665656        |
+    And the following event has been published:
+      | type        | CONTACT_CREATED  |
+      | name        | joseph           |
+      | email       | toto@yopmail.com |
+      | phoneNumber | 083665656        |
 
   Scenario: Update contact
     Given the following user in database

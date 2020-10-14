@@ -14,12 +14,12 @@ import java.util.stream.Collectors;
 public class DataTableMappers {
   @DataTableType
   public ContactJpa aContactJpa(DataTable dataTable) {
-    return Utils.convertDatatableTransposed(dataTable, ContactJpa.class);
+    return TestUtils.convertDatatableTransposed(dataTable, ContactJpa.class);
   }
 
   @DataTableType
   public ContactRestDto aContactRestDto(DataTable dataTable) {
-    return Utils.convertDatatableTransposed(dataTable, ContactRestDto.class);
+    return TestUtils.convertDatatableTransposed(dataTable, ContactRestDto.class);
   }
 
   @ParameterType(

@@ -1,3 +1,5 @@
+out.topic: test
+
 management:
   endpoints:
     web.exposure.include: '*'
@@ -9,13 +11,25 @@ management:
     health.show-details: always
 
 spring:
+#  cloud.stream:
+#    function.definition: process
+#    bindings:
+#      output-out-0:
+#        destination: test
+#        group: group1
+#    kafka:
+#      bindings:
+#        output-out-0:
+#          producer:
+#            configuration:
+#              value.serializer: org.apache.kafka.common.serialization.StringSerializer
   kafka:
     bootstrap-servers:
       - localhost:9094
     security.protocol: PLAINTEXT
     producer:
 #      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
   datasource:
     url: jdbc:mysql://localhost:3306/contacts?createDatabaseIfNotExist=true&serverTimezone=UTC
     username: dbuser

@@ -30,10 +30,11 @@ import org.testcontainers.containers.DockerComposeContainer;
 
 import java.io.File;
 import java.time.Duration;
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.not;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -128,6 +129,11 @@ public class DemoApplicationCucumberSteps {
   public void thereIsNoContactInTheDatabase() {
     Iterator<ContactJpa> allContacts = contactRepository.findAll().iterator();
     assertThat(allContacts.hasNext()).isFalse();
+  }
+
+  @And("the following event has been published:")
+  public void theFollowingEventHasBeenPublished() {
+
   }
 
   static class Initializer

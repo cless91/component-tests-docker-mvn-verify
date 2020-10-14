@@ -63,15 +63,15 @@ services:
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
-  app:
-    user: root
-    restart: always
-    image: component-tests-docker-mvn-verify:0.0.1-SNAPSHOT
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://database:3306/contacts?createDatabaseIfNotExist=true&serverTimezone=UTC
-    ports:
-      - "8080:8080"
-    depends_on:
-      - database
+#  app:
+#    user: root
+#    restart: always
+#    image: component-tests-docker-mvn-verify:0.0.1-SNAPSHOT
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:mysql://database:3306/contacts?createDatabaseIfNotExist=true&serverTimezone=UTC
+#    ports:
+#      - "8080:8080"
+#    depends_on:
+#      - database
 volumes:
   db_data:

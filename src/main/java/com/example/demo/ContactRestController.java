@@ -3,8 +3,11 @@ package com.example.demo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.util.UUID;
 
 @RestController
 public class ContactRestController {
@@ -15,18 +18,23 @@ public class ContactRestController {
   @Autowired
   ContactRepository contactRepository;
 
-  @RequestMapping(path = "/contact", method = RequestMethod.POST)
-  public ResponseEntity<Void> create(@RequestBody ContactRestDto request) {
-    ContactJpa contactJpa = new ContactJpa();
-    contactJpa.setName(request.getName());
-    contactJpa.setEmail(request.getEmail());
-    contactJpa.setPhoneNumber(request.getPhoneNumber());
+  @Autowired
+  ContactCrudService contactCrudService;
 
-    ContactJpa savedContact = contactRepository.save(contactJpa);
+  @RequestMapping(path = "/contact", method = RequestMethod.POST)
+  public ResponseEntity<Void> create(@RequestBody ContactRestDto request, @Header("X-Correlation-ID") String inputCorrelationID) {
+    String correlationId = inputCorrelationID != null ? inputCorrelationID : UUID.randomUUID().toString();
     final String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+    ContactRestDto savedContact = contactCrudService.create(request, correlationId, baseUrl);
+    String locationUrl = buildNewContactUrl(savedContact, baseUrl);
     return ResponseEntity.status(HttpStatus.CREATED)
-        .header("Location", baseUrl + "/contact/" + savedContact.getId())
+        .header("Location", locationUrl)
+        .header("X-Correlation-ID", correlationId)
         .build();
+  }
+
+  private String buildNewContactUrl(ContactRestDto savedContact, String baseUrl) {
+    return baseUrl + "/contact/" + savedContact.getId();
   }
 
   @RequestMapping(path = "/contact/{id}", method = RequestMethod.GET)
