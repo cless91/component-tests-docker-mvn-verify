@@ -9,6 +9,13 @@ management:
     health.show-details: always
 
 spring:
+  kafka:
+    bootstrap-servers:
+      - localhost:9094
+    security.protocol: PLAINTEXT
+    producer:
+#      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
   datasource:
     url: jdbc:mysql://localhost:3306/contacts?createDatabaseIfNotExist=true&serverTimezone=UTC
     username: dbuser
