@@ -1,6 +1,13 @@
 app.base.url: 'http://localhost:8080'
 
 spring:
+  kafka:
+    consumer:
+      group-id: service-a-component-test
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: '*'
   datasource:
     url: jdbc:mysql://localhost:3306/contacts?createDatabaseIfNotExist=true&serverTimezone=UTC
     username: dbuser

@@ -14,7 +14,7 @@ import java.io.File;
 @Testcontainers
 @SpringBootTest
 @Disabled
-class DemoApplicationTests {
+class ServiceATests {
   @Container
   private static DockerComposeContainer infra =
       new DockerComposeContainer(new File("src/test/resources/docker-compose-test.yml"))

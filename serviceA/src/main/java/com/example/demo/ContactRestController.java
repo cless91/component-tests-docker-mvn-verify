@@ -1,5 +1,7 @@
 package com.example.demo;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.util.UUID;
 
 @RestController
+@Slf4j
 public class ContactRestController {
   /**
    * Todo un test avec une bdd embarquée type H2 pour vérifier que le header `Location` est bien positionné après un insert
@@ -22,8 +25,10 @@ public class ContactRestController {
   ContactCrudService contactCrudService;
 
   @RequestMapping(path = "/contact", method = RequestMethod.POST)
-  public ResponseEntity<Void> create(@RequestBody ContactRestDto request, @Header("X-Correlation-ID") String inputCorrelationID) {
-    String correlationId = inputCorrelationID != null ? inputCorrelationID : UUID.randomUUID().toString();
+  public ResponseEntity<Void> create(@RequestHeader("X-Correlation-ID") String inputCorrelationId,
+                                     @RequestBody ContactRestDto request) {
+    log.debug("received create request with correlation id: {}, for entity {}", inputCorrelationId, request.toString());
+    String correlationId = StringUtils.isNotBlank(inputCorrelationId) ? inputCorrelationId : UUID.randomUUID().toString();
     final String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
     ContactRestDto savedContact = contactCrudService.create(request, correlationId, baseUrl);
     String locationUrl = buildNewContactUrl(savedContact, baseUrl);

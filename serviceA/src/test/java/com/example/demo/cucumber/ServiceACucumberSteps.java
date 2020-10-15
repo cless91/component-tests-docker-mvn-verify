@@ -1,16 +1,18 @@
 package com.example.demo.cucumber;
 
 
+import com.example.demo.ContactEvent;
 import com.example.demo.ContactJpa;
 import com.example.demo.ContactRepository;
 import com.example.demo.ContactRestDto;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.cucumber.spring.CucumberContextConfiguration;
 import io.vavr.control.Try;
-import org.awaitility.Awaitility;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,7 @@ import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
@@ -30,18 +33,18 @@ import org.testcontainers.containers.DockerComposeContainer;
 
 import java.io.File;
 import java.time.Duration;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Objects;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @CucumberContextConfiguration
-@ContextConfiguration(initializers = DemoApplicationCucumberSteps.Initializer.class)
+@ContextConfiguration(initializers = ServiceACucumberSteps.Initializer.class)
 @ActiveProfiles("componenttest")
-public class DemoApplicationCucumberSteps {
+@Slf4j
+public class ServiceACucumberSteps {
   @ClassRule
   public static DockerComposeContainer environment =
       new DockerComposeContainer(new File("src/test/resources/docker-compose-test.yml"))
@@ -51,6 +54,8 @@ public class DemoApplicationCucumberSteps {
   private static int databasePort;
   @Autowired
   private ContactRepository contactRepository;
+  @Autowired
+  private EventRepository eventRepository;
   @Value("${app.base.url}")
   private String appBaseUrl;
   private int timeoutMillis = 7000;
@@ -62,7 +67,7 @@ public class DemoApplicationCucumberSteps {
   @Given("the application is up and ready")
   public void goToFacebook() {
     System.out.println("appUrl " + appBaseUrl);
-    Awaitility.await().atMost(Duration.ofMillis(timeoutMillis))
+    await().atMost(Duration.ofMillis(timeoutMillis))
         .pollInterval(Duration.ofSeconds(1))
         .with()
         .conditionEvaluationListener(evaluatedCondition -> System.out.println(evaluatedCondition.getValue().toString()))
@@ -83,12 +88,20 @@ public class DemoApplicationCucumberSteps {
 
   @When("the following \"CREATE CONTACT\" REST request is sent:")
   public void theFollowingCreateContactRESTRequestIsSent(ContactRestDto contactRestDto) {
-    actualCreateContactResponseEntity = restTemplate.postForEntity(appBaseUrl + "/contact", contactRestDto, Void.TYPE);
+    String url = appBaseUrl + "/contact";
+    log.info("sending create contact request to url {}", url);
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("X-Correlation-ID", TestContext.getCorrelationId());
+    HttpEntity<ContactRestDto> requestEntity = new HttpEntity<>(contactRestDto, headers);
+//    actualCreateContactResponseEntity = restTemplate.postForEntity(url, contactRestDto, Void.TYPE);
+    actualCreateContactResponseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, Void.TYPE);
   }
 
   @When("the following \"UPDATE CONTACT\" REST request is sent:")
   public void theFollowingUpdateContactRESTRequestIsSent(ContactRestDto contactRestDto) {
-    actualUpdateContactResponseEntity = restTemplate.exchange(appBaseUrl + "/contact/" + idNewContact,
+    String url = appBaseUrl + "/contact/" + idNewContact;
+    log.info("sending update contact request to url {}", url);
+    actualUpdateContactResponseEntity = restTemplate.exchange(url,
         HttpMethod.PUT,
         new HttpEntity<>(contactRestDto),
         Void.TYPE);
@@ -132,7 +145,10 @@ public class DemoApplicationCucumberSteps {
   }
 
   @And("the following event has been published:")
-  public void theFollowingEventHasBeenPublished() {
+  public void theFollowingEventHasBeenPublished(ContactEvent expectedContactEvent) {
+    ContactEvent contactEvent = await().atMost(Duration.ofSeconds(5))
+        .until(() -> eventRepository.getByCorrelationId(TestContext.getCorrelationId()),
+            Optional::isPresent).get();
 
   }
 
