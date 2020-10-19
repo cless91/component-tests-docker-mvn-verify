@@ -9,7 +9,7 @@ import javax.persistence.*;
 @Entity
 @Data
 @NoArgsConstructor
-public class ContactJpa {
+public class Contact {
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE)
   private int id;

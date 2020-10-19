@@ -2,10 +2,8 @@ package com.example.demo.cucumber;
 
 
 import com.example.demo.ContactEvent;
-import com.example.demo.ContactJpa;
+import com.example.demo.Contact;
 import com.example.demo.ContactRepository;
-import com.example.demo.ContactRestDto;
-import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -66,7 +64,6 @@ public class ServiceACucumberSteps {
 
   @Given("the application is up and ready")
   public void goToFacebook() {
-    System.out.println("appUrl " + appBaseUrl);
     await().atMost(Duration.ofMillis(timeoutMillis))
         .pollInterval(Duration.ofSeconds(1))
         .with()
@@ -82,65 +79,71 @@ public class ServiceACucumberSteps {
   @And("the database is empty")
   public void theDatabaseIsEmpty() {
     contactRepository.deleteAll();
-    Iterable<ContactJpa> allContacts = contactRepository.findAll();
+    Iterable<Contact> allContacts = contactRepository.findAll();
     assertThat(allContacts).isEmpty();
   }
 
   @When("the following \"CREATE CONTACT\" REST request is sent:")
-  public void theFollowingCreateContactRESTRequestIsSent(ContactRestDto contactRestDto) {
-    String url = appBaseUrl + "/contact";
+  public void theFollowingCreateContactRESTRequestIsSent(Contact contact) {
+    String url = appBaseUrl + "/contacts";
     log.info("sending create contact request to url {}", url);
     HttpHeaders headers = new HttpHeaders();
     headers.set("X-Correlation-ID", TestContext.getCorrelationId());
-    HttpEntity<ContactRestDto> requestEntity = new HttpEntity<>(contactRestDto, headers);
+    HttpEntity<Contact> requestEntity = new HttpEntity<>(contact, headers);
 //    actualCreateContactResponseEntity = restTemplate.postForEntity(url, contactRestDto, Void.TYPE);
     actualCreateContactResponseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, Void.TYPE);
   }
 
   @When("the following \"UPDATE CONTACT\" REST request is sent:")
-  public void theFollowingUpdateContactRESTRequestIsSent(ContactRestDto contactRestDto) {
-    String url = appBaseUrl + "/contact/" + idNewContact;
+  public void theFollowingUpdateContactRESTRequestIsSent(Contact contact) {
+    String url = appBaseUrl + "/contacts/" + idNewContact;
     log.info("sending update contact request to url {}", url);
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("X-Correlation-ID", TestContext.getCorrelationId());
+    HttpEntity<Contact> requestEntity = new HttpEntity<>(contact, headers);
     actualUpdateContactResponseEntity = restTemplate.exchange(url,
         HttpMethod.PUT,
-        new HttpEntity<>(contactRestDto),
+        requestEntity,
         Void.TYPE);
   }
 
   @When("a \"DELETE CONTACT\" REST request is sent")
   public void aDeleteContactRESTRequestIsSent() {
-    actualUpdateContactResponseEntity = restTemplate.exchange(appBaseUrl + "/contact/" + idNewContact,
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("X-Correlation-ID", TestContext.getCorrelationId());
+    HttpEntity<Contact> requestEntity = new HttpEntity<>(headers);
+    actualUpdateContactResponseEntity = restTemplate.exchange(appBaseUrl + "/contacts/" + idNewContact,
         HttpMethod.DELETE,
-        null,
+        requestEntity,
         Void.TYPE);
   }
 
   @Then("the following contact is present in the database:")
-  public void theFollowingContactIsPresentInTheDatabase(ContactJpa expectedContactJpa) {
-    expectedContactJpa.setId(idNewContact);
-    Iterator<ContactJpa> iterator = contactRepository.findAll().iterator();
+  public void theFollowingContactIsPresentInTheDatabase(Contact expectedContact) {
+    expectedContact.setId(idNewContact);
+    Iterator<Contact> iterator = contactRepository.findAll().iterator();
     assertThat(iterator).hasNext();
-    ContactJpa actualContactJpa = iterator.next();
-    assertThat(actualContactJpa).isEqualToComparingFieldByField(expectedContactJpa);
+    Contact actualContact = iterator.next();
+    assertThat(actualContact).isEqualToComparingFieldByField(expectedContact);
   }
 
   @Then("the following contact is present in the database, ignoring fields \"{strings}\":")
-  public void theFollowingContactIsPresentInTheDatabaseIgnoring(Collection<String> fieldsToIgnore, ContactJpa expectedContactJpa) {
-    Iterator<ContactJpa> iterator = contactRepository.findAll().iterator();
+  public void theFollowingContactIsPresentInTheDatabaseIgnoring(Collection<String> fieldsToIgnore, Contact expectedContact) {
+    Iterator<Contact> iterator = contactRepository.findAll().iterator();
     assertThat(iterator).hasNext();
-    ContactJpa actualContactJpa = iterator.next();
-    assertThat(actualContactJpa).isEqualToIgnoringGivenFields(expectedContactJpa, fieldsToIgnore.toArray(new String[0]));
+    Contact actualContact = iterator.next();
+    assertThat(actualContact).isEqualToIgnoringGivenFields(expectedContact, fieldsToIgnore.toArray(new String[0]));
   }
 
   @Given("the following user in database")
-  public void theFollowingUserInDatabase(ContactJpa contactJpa) {
-    ContactJpa newContact = contactRepository.save(contactJpa);
+  public void theFollowingUserInDatabase(Contact contact) {
+    Contact newContact = contactRepository.save(contact);
     idNewContact = newContact.getId();
   }
 
   @Then("there is no contact in the database")
   public void thereIsNoContactInTheDatabase() {
-    Iterator<ContactJpa> allContacts = contactRepository.findAll().iterator();
+    Iterator<Contact> allContacts = contactRepository.findAll().iterator();
     assertThat(allContacts.hasNext()).isFalse();
   }
 

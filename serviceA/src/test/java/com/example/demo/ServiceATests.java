@@ -25,9 +25,9 @@ class ServiceATests {
   @Test
   void contextLoads() {
     System.out.println("coucou TU");
-    ContactJpa contactJpa = new ContactJpa();
-    contactJpa.setName("joseph");
-    contactRepository.save(contactJpa);
+    Contact contact = new Contact();
+    contact.setName("joseph");
+    contactRepository.save(contact);
     contactRepository.findAll().forEach(System.out::println);
   }
 

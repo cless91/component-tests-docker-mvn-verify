@@ -18,7 +18,7 @@ public class EventRepositoryImpl implements EventRepository {
   @Override
   public Optional<ContactEvent> getByCorrelationId(String correlationId) {
     return receivedEvents.stream()
-        .filter(contactEvent -> contactEvent.getCorrelationId().equals(correlationId))
+        .filter(contactEvent -> correlationId.equals(contactEvent.getCorrelationId()))
         .findAny();
   }
 

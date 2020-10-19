@@ -32,6 +32,11 @@ Feature: Component-test starter
       | name        | joseph      |
       | email       | anotherMail |
       | phoneNumber | 083665656   |
+    And the following event has been published:
+      | eventType              | CONTACT_UPDATED |
+      | attributes.name        | joseph          |
+      | attributes.email       | anotherMail     |
+      | attributes.phoneNumber | 083665656       |
 
   Scenario: Delete contact
     Given the following user in database
@@ -40,3 +45,5 @@ Feature: Component-test starter
       | phoneNumber | 083665656        |
     When a "DELETE CONTACT" REST request is sent
     Then there is no contact in the database
+    And the following event has been published:
+      | eventType | CONTACT_DELETED |

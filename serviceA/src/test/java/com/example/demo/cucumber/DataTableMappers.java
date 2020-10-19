@@ -1,8 +1,7 @@
 package com.example.demo.cucumber;
 
 import com.example.demo.ContactEvent;
-import com.example.demo.ContactJpa;
-import com.example.demo.ContactRestDto;
+import com.example.demo.Contact;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.DataTableType;
 import io.cucumber.java.ParameterType;
@@ -21,13 +20,8 @@ public class DataTableMappers {
   }
 
   @DataTableType
-  public ContactJpa aContactJpa(DataTable dataTable) {
-    return TestUtils.convertDatatableTransposed(dataTable, ContactJpa.class);
-  }
-
-  @DataTableType
-  public ContactRestDto aContactRestDto(DataTable dataTable) {
-    return TestUtils.convertDatatableTransposed(dataTable, ContactRestDto.class);
+  public Contact aContactJpa(DataTable dataTable) {
+    return TestUtils.convertDatatableTransposed(dataTable, Contact.class);
   }
 
   @DataTableType

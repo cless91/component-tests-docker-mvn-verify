@@ -19,3 +19,14 @@ message queue, etc.
 
 It is basically a component-level test double that uses h2 instead of mysql as a datastore, and expose rest endpoints for 
 creating test data for any upstream service under integration test against `service-b`.
+
+# kafkacat
+
+```
+kafkacat -b localhost:9094 -t test -C   -f '\nKey (%K bytes): %k
+  Value (%S bytes): %s
+  Timestamp: %T
+  Partition: %p
+  Offset: %o
+  Headers: %h\n'
+```
