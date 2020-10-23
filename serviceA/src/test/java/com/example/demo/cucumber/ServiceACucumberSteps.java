@@ -11,14 +11,11 @@ import io.cucumber.java.en.When;
 import io.cucumber.spring.CucumberContextConfiguration;
 import io.vavr.control.Try;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.util.TestPropertyValues;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -27,29 +24,15 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
-import org.testcontainers.containers.DockerComposeContainer;
 
-import java.io.File;
 import java.time.Duration;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@CucumberContextConfiguration
-@ContextConfiguration(initializers = ServiceACucumberSteps.Initializer.class)
-@ActiveProfiles("componenttest")
 @Slf4j
 public class ServiceACucumberSteps {
-  @ClassRule
-  public static DockerComposeContainer environment =
-      new DockerComposeContainer(new File("src/test/resources/docker-compose-test.yml"))
-          .withExposedService("app_1", 8080)
-          .withExposedService("database_1", 3306);
-  private static int applicationPort;
-  private static int databasePort;
   @Autowired
   private ContactRepository contactRepository;
   @Autowired
@@ -62,8 +45,11 @@ public class ServiceACucumberSteps {
   private ResponseEntity<Void> actualUpdateContactResponseEntity;
   int idNewContact;
 
+  @Autowired
+  Environment environment;
+
   @Given("the application is up and ready")
-  public void goToFacebook() {
+  public void theApplicationIsUpAndRunning() {
     await().atMost(Duration.ofMillis(timeoutMillis))
         .pollInterval(Duration.ofSeconds(1))
         .with()
@@ -155,16 +141,4 @@ public class ServiceACucumberSteps {
 
   }
 
-  static class Initializer
-      implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-    public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-      environment.start();
-      applicationPort = environment.getServicePort("app_1", 8080);
-      databasePort = environment.getServicePort("database_1", 3306);
-      TestPropertyValues.of(
-          String.format("jdbc:mysql://localhost:%d/contacts?createDatabaseIfNotExist=true&serverTimezone=UTC", databasePort),
-          String.format("app.url=http://localhost:%d", applicationPort)
-      ).applyTo(configurableApplicationContext.getEnvironment());
-    }
-  }
 }

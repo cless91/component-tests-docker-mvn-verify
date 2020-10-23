@@ -5,10 +5,10 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     restart: always
-    ports:
-      - '3306:3306'
-    expose:
-      - '3306'
+#    ports:
+#      - '3306:3306'
+#    expose:
+#      - '3306'
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: contacts
@@ -16,10 +16,10 @@ services:
       MYSQL_PASSWORD: dbpass
   zookeeper:
     image: confluentinc/cp-zookeeper:5.4.0
-    ports:
-      - "2181:2181"
-    expose:
-      - "2181"
+#    ports:
+#      - "2181:2181"
+#    expose:
+#      - "2181"
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -29,10 +29,11 @@ services:
     depends_on:
       - zookeeper
     ports:
-      - "9094:9094"
-    expose:
-      - "9092"
       - "9094"
+      - "29092"
+#    expose:
+#      - "9092"
+#      - "9094"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
@@ -49,6 +50,7 @@ services:
       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
       KAFKA_LISTENERS: PLAINTEXT_HOST://kafka:29092,PLAINTEXT://kafka:9092,OUTSIDE://kafka:9094
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_HOST://kafka:29092, PLAINTEXT://kafka:9092,OUTSIDE://localhost:9094
+#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_HOST://kafka:29092, PLAINTEXT://kafka:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
   schema-registry:
@@ -57,10 +59,10 @@ services:
     depends_on:
       - zookeeper
       - kafka
-    ports:
-      - "8081:8081"
-    expose:
-      - "8081"
+#    ports:
+#      - "8081:8081"
+#    expose:
+#      - "8081"
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
@@ -73,11 +75,18 @@ services:
       SPRING_KAFKA_BOOTSTRAPSERVERS: kafka:9092
       LOGGING_LEVEL_ROOT: DEBUG
     ports:
-      - "8080:8080"
-    expose:
       - "8080"
+#    expose:
+#      - "8080"
     depends_on:
       - database
+      - schema-registry
+  kafka-listener:
+    ports: 
+    - "8080"
+    image: kafka-listener:0.0.1-SNAPSHOT
+    restart: always
+    depends_on:
       - schema-registry
 volumes:
   db_data:

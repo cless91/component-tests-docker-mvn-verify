@@ -1,0 +1,23 @@
+out.topic: test
+
+management:
+  endpoints:
+    web.exposure.include: '*'
+    health.sensitive: false
+  health:
+    db.enabled: true
+    defaults.enabled: true
+  endpoint:
+    health.show-details: always
+
+spring:
+  kafka:
+    bootstrap-servers:
+      - kafka:9092
+    security.protocol: PLAINTEXT
+    consumer:
+      group-id: test-consumer-inside
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: '*'

@@ -1,4 +1,4 @@
-package com.example.demo.cucumber.infra;
+package com.example.demo.cucumber;
 
 import com.example.demo.ContactEvent;
 import com.example.demo.cucumber.EventRepository;
