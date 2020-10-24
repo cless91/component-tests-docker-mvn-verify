@@ -1,4 +1,4 @@
-package com.example.demo.cucumber;
+package com.example.demo.cucumber.steps;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;

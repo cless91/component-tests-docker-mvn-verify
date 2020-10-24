@@ -17,7 +17,7 @@ import java.io.File;
 class ServiceATests {
   @Container
   private static DockerComposeContainer infra =
-      new DockerComposeContainer(new File("src/test/resources/docker-compose-test.yml"))
+      new DockerComposeContainer(new File("src/test/resources/docker-compose-component-test.yml"))
           .waitingFor("database_1", Wait.forLogMessage(".*ready for connections.*", 1));
   @Autowired
   private ContactRepository contactRepository;

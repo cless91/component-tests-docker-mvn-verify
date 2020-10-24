@@ -1,4 +1,4 @@
-package com.example.demo.cucumber;
+package com.example.demo.cucumber.steps;
 
 import com.example.demo.ContactEvent;
 

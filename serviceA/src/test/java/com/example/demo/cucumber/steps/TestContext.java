@@ -1,4 +1,4 @@
-package com.example.demo.cucumber;
+package com.example.demo.cucumber.steps;
 
 import io.cucumber.java.Before;
 import lombok.extern.slf4j.Slf4j;

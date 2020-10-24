@@ -1,4 +1,4 @@
-package com.example.demo.cucumber;
+package com.example.demo.cucumber.component;
 
 import com.example.demo.ServiceA;
 import io.cucumber.spring.CucumberContextConfiguration;
@@ -7,6 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.DockerComposeContainer;
@@ -17,12 +18,12 @@ import java.io.File;
 @CucumberContextConfiguration
 @ContextConfiguration(
     classes = {ServiceA.class},
-    initializers = CucumberContainersSpringConfiguration.Initializer.class)
-@ActiveProfiles("componenttest")
-public class CucumberContainersSpringConfiguration {
+    initializers = CucumberSpringConfigurationComponent.Initializer.class)
+@ActiveProfiles("component")
+public class CucumberSpringConfigurationComponent {
   @ClassRule
   public static DockerComposeContainer dockerComposeContainer =
-      new DockerComposeContainer(new File("src/test/resources/docker-compose-test.yml"))
+      new DockerComposeContainer(new File("src/test/resources/docker-compose-component-test.yml"))
           .withExposedService("app_1", 8080)
           .withExposedService("kafka_1", 9094)
           .withExposedService("kafka_1", 9092)
