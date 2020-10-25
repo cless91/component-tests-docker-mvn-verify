@@ -74,6 +74,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://database:3306/contacts?createDatabaseIfNotExist=true&serverTimezone=UTC
       SPRING_KAFKA_BOOTSTRAPSERVERS: kafka:9092
       LOGGING_LEVEL_ROOT: DEBUG
+      SERVICEB_BASE_URL: http://service-b:8081
     ports:
       - "8080"
 #    expose:
@@ -82,11 +83,18 @@ services:
       - database
       - schema-registry
   kafka-listener:
-    ports: 
+    ports:
     - "8080"
     image: kafka-listener:0.0.1-SNAPSHOT
     restart: always
     depends_on:
       - schema-registry
+  service-b:
+    expose:
+      - "8081"
+    restart: always
+    image: service-b
+    environment:
+      SPRING_PROFILES_ACTIVE: test
 volumes:
   db_data:

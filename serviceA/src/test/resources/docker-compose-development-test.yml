@@ -62,7 +62,6 @@ services:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
   service-b:
-#    user: root
     restart: always
     image: service-b
     environment:

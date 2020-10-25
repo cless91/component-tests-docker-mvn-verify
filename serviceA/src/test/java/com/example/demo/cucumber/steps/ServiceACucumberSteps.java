@@ -33,6 +33,8 @@ public class ServiceACucumberSteps {
   private EventRepository eventRepository;
   @Value("${app.base.url}")
   private String appBaseUrl;
+  @Value("${serviceb.base.url}")
+  private String serviceBBaseUrl;
   private int timeoutMillis = 7000;
   private final RestTemplate restTemplate = new RestTemplate();
   private ResponseEntity<Void> actualCreateContactResponseEntity;
@@ -139,6 +141,7 @@ public class ServiceACucumberSteps {
   public void serviceBRepliesWithData(String data) {
     Map<String,Object> request = new HashMap<>();
     request.put("name", data);
-    restTemplate.postForEntity("http://localhost:8081/given",request,Void.TYPE);
+    log.info("posting test data to service-b on url: {}",serviceBBaseUrl);
+    restTemplate.postForEntity(serviceBBaseUrl+"/given",request,Void.TYPE);
   }
 }

@@ -1,4 +1,5 @@
 out.topic: test
+serviceb.base.url: http://localhost:8081
 
 management:
   endpoints:
