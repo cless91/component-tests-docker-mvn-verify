@@ -13,6 +13,7 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +27,7 @@ import java.util.UUID;
 public class ContactCrudEventHandler {
 
   private final KafkaTemplate<String, ContactEvent> kafkaTemplate;
+  private final RestTemplate restTemplate = new RestTemplate();
   @Value("${out.topic}")
   private String topic;
   private final HttpServletRequest request;
@@ -35,6 +37,13 @@ public class ContactCrudEventHandler {
       .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
       .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
       .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES, true);
+
+  @HandleBeforeCreate
+  public void queryServiceBBeforeCreate(Contact contact) {
+    Map<String, Object> map = restTemplate.getForObject("http://localhost:8081/entities/1", Map.class);
+    String name = (String) map.get("name");
+    contact.setOtherValue(name);
+  }
 
   @HandleAfterCreate
   public void notifyContactCreated(Contact contact) {

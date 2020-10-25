@@ -5,6 +5,7 @@ Feature: Component-test starter
     And the database is empty
 
   Scenario: Create contact
+    Given service-b replies with data "hello"
     When the following "CREATE CONTACT" REST request is sent:
       | name        | joseph           |
       | email       | toto@yopmail.com |
@@ -13,11 +14,13 @@ Feature: Component-test starter
       | name        | joseph           |
       | email       | toto@yopmail.com |
       | phoneNumber | 083665656        |
+      | otherValue  | hello            |
     And the following event has been published:
       | eventType              | CONTACT_CREATED  |
       | attributes.name        | joseph           |
       | attributes.email       | toto@yopmail.com |
       | attributes.phoneNumber | 083665656        |
+      | attributes.otherValue  | hello            |
 
   Scenario: Update contact
     Given the following user in database

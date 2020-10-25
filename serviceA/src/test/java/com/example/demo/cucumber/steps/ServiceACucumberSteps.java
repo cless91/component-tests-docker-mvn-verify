@@ -135,4 +135,10 @@ public class ServiceACucumberSteps {
 
   }
 
+  @Given("service-b replies with data {string}")
+  public void serviceBRepliesWithData(String data) {
+    Map<String,Object> request = new HashMap<>();
+    request.put("name", data);
+    restTemplate.postForEntity("http://localhost:8081/given",request,Void.TYPE);
+  }
 }

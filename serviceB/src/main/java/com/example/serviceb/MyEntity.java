@@ -11,13 +11,6 @@ import javax.persistence.Id;
 public class MyEntity {
   @Id
   @GeneratedValue
-//  @GeneratedValue(generator = "UUID")
-//  @GenericGenerator(
-//      name = "UUID",
-//      strategy = "org.hibernate.id.UUIDGenerator"
-//  )
-//  @Column(name = "id", updatable = false, nullable = false)
-//  private UUID id;
   private int id;
   private String name;
 }
