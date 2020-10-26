@@ -1,7 +1,7 @@
 package com.example.demo.cucumber.steps;
 
-import com.example.demo.ContactEvent;
 import com.example.demo.Contact;
+import com.example.demo.ContactEvent;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.DataTableType;
 import io.cucumber.java.ParameterType;
