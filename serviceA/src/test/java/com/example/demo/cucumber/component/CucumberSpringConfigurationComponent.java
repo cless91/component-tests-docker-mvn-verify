@@ -45,6 +45,7 @@ public class CucumberSpringConfigurationComponent {
       TestPropertyValues.of(
           String.format("spring.datasource.url=jdbc:mysql://localhost:%d/contacts?createDatabaseIfNotExist=true&serverTimezone=UTC", databasePort),
           String.format("spring.kafka.bootstrap-servers[0]=http://localhost:%d", kafkaPort ),
+          String.format("local.server.port=%d", applicationPort),
           String.format("app.base.url=http://localhost:%d", applicationPort),
           String.format("kafkalistener.base.url=http://localhost:%d", kafkaListenerPort),
           String.format("serviceb.base.url=http://localhost:%d", serviceBPort)

@@ -1,8 +1,8 @@
 package com.example.demo.cucumber.steps;
 
 
-import com.example.demo.ContactEvent;
 import com.example.demo.Contact;
+import com.example.demo.ContactEvent;
 import com.example.demo.ContactRepository;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -31,7 +31,6 @@ public class ServiceACucumberSteps {
   private ContactRepository contactRepository;
   @Autowired
   private EventRepository eventRepository;
-  @Value("${app.base.url}")
   private String appBaseUrl;
   @Value("${serviceb.base.url}")
   private String serviceBBaseUrl;
@@ -43,6 +42,12 @@ public class ServiceACucumberSteps {
 
   @Autowired
   Environment environment;
+
+  public ServiceACucumberSteps(@Value("${local.server.port}") int localServerPort){
+    String protocol = "http";
+    String hostname = "localhost";
+    this.appBaseUrl = String.format("%s://%s:%d", protocol, hostname, localServerPort);
+  }
 
   @Given("the application is up and ready")
   public void theApplicationIsUpAndRunning() {
@@ -72,7 +77,6 @@ public class ServiceACucumberSteps {
     HttpHeaders headers = new HttpHeaders();
     headers.set("X-Correlation-ID", TestContext.getCorrelationId());
     HttpEntity<Contact> requestEntity = new HttpEntity<>(contact, headers);
-//    actualCreateContactResponseEntity = restTemplate.postForEntity(url, contactRestDto, Void.TYPE);
     actualCreateContactResponseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, Void.TYPE);
   }
 
