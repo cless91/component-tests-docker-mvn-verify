@@ -27,11 +27,9 @@ import java.util.UUID;
 public class ContactCrudEventHandler {
 
   private final KafkaTemplate<String, ContactEvent> kafkaTemplate;
-  private final RestTemplate restTemplate = new RestTemplate();
   @Value("${out.topic}")
   private String topic;
-  @Value("${serviceb.base.url}")
-  private String serviceBBaseUrl;
+  private final ServiceBGateway serviceBGateway;
   private final HttpServletRequest request;
   private ObjectMapper objectMapper = new ObjectMapper()
       .registerModule(new JavaTimeModule())
@@ -42,8 +40,7 @@ public class ContactCrudEventHandler {
 
   @HandleBeforeCreate
   public void queryServiceBBeforeCreate(Contact contact) {
-    Map<String, Object> map = restTemplate.getForObject(serviceBBaseUrl + "/entities/1", Map.class);
-    String name = (String) map.get("name");
+    String name = serviceBGateway.getServiceBValue();
     contact.setOtherValue(name);
   }
 
