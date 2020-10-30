@@ -1,4 +1,4 @@
-package com.example.demo.cucumber;
+package com.example.demo.cucumber.unittest;
 
 import com.example.demo.ServiceBGateway;
 import com.example.demo.cucumber.steps.ServiceBConfigurer;

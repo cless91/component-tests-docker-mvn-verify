@@ -13,7 +13,6 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,8 +24,6 @@ import java.util.UUID;
 @RepositoryEventHandler
 @Component
 public class ContactCrudEventHandler {
-
-  private final KafkaTemplate<String, ContactEvent> kafkaTemplate;
   @Value("${out.topic}")
   private String topic;
   private final ServiceBGateway serviceBGateway;
@@ -37,6 +34,7 @@ public class ContactCrudEventHandler {
       .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
       .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
       .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES, true);
+  private final EventPublisher eventPublisher;
 
   @HandleBeforeCreate
   public void queryServiceBBeforeCreate(Contact contact) {
@@ -56,7 +54,7 @@ public class ContactCrudEventHandler {
         .setHeader("Location", locationHeader)
         .build();
     log.info("sending event to topic {} - {}", topic, contactCreatedEvent.toString());
-    kafkaTemplate.send(event);
+    eventPublisher.publishEvent(event);
   }
 
   private String getCorrelationId() {
@@ -101,7 +99,7 @@ public class ContactCrudEventHandler {
         .setHeader("Location", locationHeader)
         .build();
     log.info("sending event to topic {} - {}", topic, contactUpdatedEvent.toString());
-    kafkaTemplate.send(event);
+    eventPublisher.publishEvent(event);
   }
 
   private ContactEvent buildContactUpdatedEvent(Contact contact, String correlationId) {
@@ -126,7 +124,7 @@ public class ContactCrudEventHandler {
         .setHeader("Location", locationHeader)
         .build();
     log.info("sending event to topic {} - {}", topic, contactUpdatedEvent.toString());
-    kafkaTemplate.send(event);
+    eventPublisher.publishEvent(event);
   }
 
   private ContactEvent buildContactDeletedEvent(int contactId, String correlationId) {

@@ -1,4 +1,4 @@
-package com.example.demo.cucumber;
+package com.example.demo.cucumber.development;
 
 import com.example.demo.ContactEvent;
 import com.example.demo.cucumber.steps.EventRepository;
@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Slf4j
 @Component
-@Profile({"development", "unittest"})
+@Profile("development")
 public class EventRepositoryKafkaListener implements EventRepository {
   List<ContactEvent> receivedEvents = new ArrayList<>();
 
