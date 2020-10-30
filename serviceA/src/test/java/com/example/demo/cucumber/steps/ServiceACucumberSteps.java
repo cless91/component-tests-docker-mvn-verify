@@ -32,22 +32,21 @@ public class ServiceACucumberSteps {
   @Autowired
   private EventRepository eventRepository;
   private String appBaseUrl;
-  private String serviceBBaseUrl;
   private int timeoutMillis = 7000;
   private final RestTemplate restTemplate = new RestTemplate();
   private ResponseEntity<Void> actualCreateContactResponseEntity;
   private ResponseEntity<Void> actualUpdateContactResponseEntity;
   int idNewContact;
+  @Autowired
+  private ServiceBConfigurer serviceBConfigurer;
 
   @Autowired
   Environment environment;
 
-  public ServiceACucumberSteps(@Value("${local.server.port}") int localServerPort,
-                               @Value("${serviceb.base.url}") String serviceBBaseUrl) {
+  public ServiceACucumberSteps(@Value("${local.server.port}") int localServerPort) {
     String protocol = "http";
     String hostname = "localhost";
     this.appBaseUrl = String.format("%s://%s:%d", protocol, hostname, localServerPort);
-    this.serviceBBaseUrl = serviceBBaseUrl;
   }
 
   @Given("the application is up and ready")
@@ -144,9 +143,7 @@ public class ServiceACucumberSteps {
 
   @Given("service-b replies with data {string}")
   public void serviceBRepliesWithData(String data) {
-    Map<String, Object> request = new HashMap<>();
-    request.put("name", data);
-    log.info("posting test data to service-b on url: {}", serviceBBaseUrl);
-    restTemplate.postForEntity(serviceBBaseUrl + "/given", request, Void.TYPE);
+    serviceBConfigurer.configureResponse(data);
   }
+
 }
