@@ -25,8 +25,9 @@ public class ServiceBConfigurerRest implements ServiceBConfigurer {
   @Override
   public void configureResponse(String data) {
     Map<String, Object> request = new HashMap<>();
+    request.put("id", 1);
     request.put("name", data);
     log.info("posting test data to service-b on url: {}", serviceBBaseUrl);
-    restTemplate.postForEntity(serviceBBaseUrl + "/given", request, Void.TYPE);
+    restTemplate.put(serviceBBaseUrl + "/given", request, Void.TYPE);
   }
 }

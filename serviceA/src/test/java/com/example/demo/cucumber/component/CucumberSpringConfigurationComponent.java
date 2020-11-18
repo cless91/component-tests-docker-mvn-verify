@@ -29,7 +29,7 @@ public class CucumberSpringConfigurationComponent {
           .withExposedService("zookeeper_1", 2181)
           .withExposedService("schema-registry_1", 8081)
           .withExposedService("kafka-listener_1", 8080)
-          .withExposedService("service-b_1", 8081)
+          .withExposedService("service-b_1", 8082)
           .withExposedService("database_1", 3306);
 
   static class Initializer
@@ -40,7 +40,7 @@ public class CucumberSpringConfigurationComponent {
       int databasePort = dockerComposeContainer.getServicePort("database_1", 3306);
       int kafkaPort = dockerComposeContainer.getServicePort("kafka_1", 9094);
       int kafkaListenerPort = dockerComposeContainer.getServicePort("kafka-listener_1", 8080);
-      int serviceBPort = dockerComposeContainer.getServicePort("service-b_1", 8081);
+      int serviceBPort = dockerComposeContainer.getServicePort("service-b_1", 8082);
       TestPropertyValues.of(
           String.format("spring.datasource.url=jdbc:mysql://localhost:%d/contacts?createDatabaseIfNotExist=true&serverTimezone=UTC", databasePort),
           String.format("spring.kafka.bootstrap-servers[0]=http://localhost:%d", kafkaPort ),

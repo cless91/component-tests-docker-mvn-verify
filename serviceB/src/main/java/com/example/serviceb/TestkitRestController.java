@@ -15,7 +15,7 @@ public class TestkitRestController {
   @Autowired
   MyEntityRepository repository;
 
-  @RequestMapping(path = "/given", method = RequestMethod.POST)
+  @RequestMapping(path = "/given", method = RequestMethod.PUT)
   public ResponseEntity<Void> given(@RequestBody MyEntity entity){
     MyEntity savedEntity = repository.save(entity);
     return ResponseEntity.status(HttpStatus.CREATED)
