@@ -13,6 +13,8 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,6 +25,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RepositoryEventHandler
 @Component
+@Transactional(isolation = Isolation.READ_COMMITTED)
 public class ContactCrudEventHandler {
   @Value("${out.topic}")
   private String topic;
@@ -35,6 +38,8 @@ public class ContactCrudEventHandler {
       .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true)
       .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES, true);
   private final EventPublisher eventPublisher;
+  private final String CORRELATION_ID_HEADER = "X-Correlation-ID";
+  private final String LOCATION_HEADER = "Location";
 
   @HandleBeforeCreate
   public void queryServiceBBeforeCreate(Contact contact) {
@@ -50,8 +55,8 @@ public class ContactCrudEventHandler {
     Message<ContactEvent> event = MessageBuilder
         .withPayload(contactCreatedEvent)
         .setHeader(KafkaHeaders.TOPIC, topic)
-        .setHeader("X-Correlation-ID", correlationId)
-        .setHeader("Location", locationHeader)
+        .setHeader(CORRELATION_ID_HEADER, correlationId)
+        .setHeader(LOCATION_HEADER, locationHeader)
         .build();
     log.info("sending event to topic {} - {}", topic, contactCreatedEvent.toString());
     eventPublisher.publishEvent(event);
@@ -78,13 +83,12 @@ public class ContactCrudEventHandler {
   }
 
   private ContactEvent buildContactCreatedEvent(Contact contact, String correlationId) {
-    ContactEvent contactCreatedEvent = ContactEvent.builder()
+    return ContactEvent.builder()
         .correlationId(correlationId)
         .eventType(EventType.CONTACT_CREATED)
         .id(contact.getId())
         .attributes(objectMapper.convertValue(contact, Map.class))
         .build();
-    return contactCreatedEvent;
   }
 
   @HandleAfterSave
@@ -95,21 +99,20 @@ public class ContactCrudEventHandler {
     Message<ContactEvent> event = MessageBuilder
         .withPayload(contactUpdatedEvent)
         .setHeader(KafkaHeaders.TOPIC, topic)
-        .setHeader("X-Correlation-ID", correlationId)
-        .setHeader("Location", locationHeader)
+        .setHeader(CORRELATION_ID_HEADER, correlationId)
+        .setHeader(LOCATION_HEADER, locationHeader)
         .build();
     log.info("sending event to topic {} - {}", topic, contactUpdatedEvent.toString());
     eventPublisher.publishEvent(event);
   }
 
   private ContactEvent buildContactUpdatedEvent(Contact contact, String correlationId) {
-    ContactEvent contactUpdatedEvent = ContactEvent.builder()
+    return ContactEvent.builder()
         .correlationId(correlationId)
         .eventType(EventType.CONTACT_UPDATED)
         .id(contact.getId())
         .attributes(objectMapper.convertValue(contact, Map.class))
         .build();
-    return contactUpdatedEvent;
   }
 
   @HandleAfterDelete
@@ -120,19 +123,18 @@ public class ContactCrudEventHandler {
     Message<ContactEvent> event = MessageBuilder
         .withPayload(contactUpdatedEvent)
         .setHeader(KafkaHeaders.TOPIC, topic)
-        .setHeader("X-Correlation-ID", correlationId)
-        .setHeader("Location", locationHeader)
+        .setHeader(CORRELATION_ID_HEADER, correlationId)
+        .setHeader(LOCATION_HEADER, locationHeader)
         .build();
     log.info("sending event to topic {} - {}", topic, contactUpdatedEvent.toString());
     eventPublisher.publishEvent(event);
   }
 
   private ContactEvent buildContactDeletedEvent(int contactId, String correlationId) {
-    ContactEvent contactUpdatedEvent = ContactEvent.builder()
+    return ContactEvent.builder()
         .correlationId(correlationId)
         .eventType(EventType.CONTACT_DELETED)
         .id(contactId)
         .build();
-    return contactUpdatedEvent;
   }
 }
